@@ -1,0 +1,99 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\00118Z744> docker container run -it -p 9870:9870 -p 8088:8088 registry.gitlab.com/training-support/training-environments:hadoop-v1 bash
+Unable to find image 'registry.gitlab.com/training-support/training-environments:hadoop-v1' locally
+hadoop-v1: Pulling from training-support/training-environments
+608211a262ee: Pulling fs layer
+61306300393f: Pulling fs layer
+0a7687d214cc: Pulling fs layer
+38af72466a03: Pulling fs layer
+42e5bf010d2f: Waiting
+152c932e670e: Pulling fs layer
+152c932e670e: Waiting                                                                                                   0c4d98300576: Pulling fs layer
+188471d11260: Waiting                                                                                                   401ba29d0022: Pulling fs layer
+0c4d98300576: Waiting                                                                                                   29dd0dd410fc: Pull complete
+9f851d325110: Pull complete
+087be0e1d8dd: Pull complete
+4ca545ee6d5d: Pull complete
+f4e2efc83ea9: Pull complete
+679f49e234e6: Pull complete
+a8b7c27a1dab: Pull complete
+f125ae3af3cf: Pull complete
+634a4b3fdf6a: Pull complete
+6c69c048807f: Pull complete
+9d4858348dfb: Pull complete
+5478d1799d81: Pull complete
+2cbb978e5135: Pull complete
+fd567e0cceef: Pull complete
+4cd4f55fc49e: Pull complete
+adb203486202: Pull complete
+70aba3b36a86: Pull complete
+003094eee177: Pull complete
+660125a6931d: Pull complete
+2dd0da4b85e4: Pull complete
+2806480c5939: Pull complete
+204f9ce25854: Pull complete
+4fb3d1127c51: Pull complete
+1f15937e8a9c: Pull complete
+32f5c02219a3: Pull complete
+b6fef507dc43: Pull complete
+de42c5e97c99: Pull complete
+fb410e647acf: Pull complete
+f1be110c9c3f: Pull complete
+Digest: sha256:9e95963f722718b4394303f79e3103fed5c26c90a924c5fb94341f723ab8b810
+Status: Downloaded newer image for registry.gitlab.com/training-support/training-environments:hadoop-v1
+/
+ * Starting OpenBSD Secure Shell server sshd                                                                                  [ OK ]
+Waiting for hdfs to exit from safemode
+Safe mode is OFF
+Started
+root@79ad0f91308a:/# vim /root/txtfile.txt
+root@79ad0f91308a:/# ls
+bin  boot  derby.log  dev  etc  home  lib  lib64  media  metastore_db  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@79ad0f91308a:/# cat /root/txtfile.txt
+Night. That over years creepeth green fourth had after also seas make. Female living sea very hath. Dry good in is bring fifth undercreeping all tree land.
+root@79ad0f91308a:/# vim /root/csvfile.csv
+root@79ad0f91308a:/# cat /root/csvfile.csv
+"Sell", "List", "Living", "Rooms", "Beds", "Baths", "Age", "Acres", "Taxes"
+142, 160, 28, 10, 5, 3,  60, 0.28,  3167
+175, 180, 18,  8, 4, 1,  12, 0.43,  4033
+129, 132, 13,  6, 3, 1,  41, 0.33,  1471
+138, 140, 17,  7, 3, 1,  22, 0.46,  3204
+232, 240, 25,  8, 4, 3,   5, 2.05,  3613
+135, 140, 18,  7, 4, 3,   9, 0.57,  3028
+150, 160, 20,  8, 4, 3,  18, 4.00,  3131
+207, 225, 22,  8, 4, 2,  16, 2.22,  5158
+271, 285, 30, 10, 5, 2,  30, 0.53,  5702
+ 89,  90, 10,  5, 3, 1,  43, 0.30,  2054
+153, 157, 22,  8, 3, 3,  18, 0.38,  4127
+root@79ad0f91308a:/# mkdir textData
+root@79ad0f91308a:/# hdfs dfs -mkdir /textData
+root@79ad0f91308a:/# ls
+bin   derby.log  etc   lib    media         mnt  proc  run   srv  textData  usr
+boot  dev        home  lib64  metastore_db  opt  root  sbin  sys  tmp       var
+root@79ad0f91308a:/# hdfs dfs -copyFromLocal /root/txtfile.txt /textData
+root@79ad0f91308a:/# hdfs dfs -copyFromLocal /root/csvfile.csv /textData
+root@79ad0f91308a:/# ls /textData
+root@79ad0f91308a:/# ls
+bin   derby.log  etc   lib    media         mnt  proc  run   srv  textData  usr
+boot  dev        home  lib64  metastore_db  opt  root  sbin  sys  tmp       var
+root@79ad0f91308a:/# ls /textData
+root@79ad0f91308a:/# ls /root/
+csvfile.csv  txtfile.txt
+root@79ad0f91308a:/# ls /textData/
+root@79ad0f91308a:/# hdfs dfs -ls /textData
+Found 2 items
+-rw-r--r--   1 root supergroup        527 2022-12-27 06:54 /textData/csvfile.csv
+-rw-r--r--   1 root supergroup        157 2022-12-27 06:54 /textData/txtfile.txt
+root@79ad0f91308a:/# hdfs dfs -stat "type:%F permissions:%a %u:%g size:%b name:%n" /file
+stat: `/file': No such file or directory
+root@79ad0f91308a:/# hdfs dfs -stat "type:%F permissions:%a %u:%g size:%b name:%n" /csvfile.csv
+stat: `/csvfile.csv': No such file or directory
+root@79ad0f91308a:/# hdfs dfs -stat "type:%F permissions:%a %u:%g size:%b name:%n" /textData/csvfile.csv
+type:regular file permissions:644 root:supergroup size:527 name:csvfile.csv
+root@79ad0f91308a:/# hdfs dfs -stat "type:%F permissions:%a %u:%g size:%b name:%n" /textData/txtfile.txt
+type:regular file permissions:644 root:supergroup size:157 name:txtfile.txt
+root@79ad0f91308a:/#
