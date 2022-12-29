@@ -1,0 +1,330 @@
+PS C:\Users\00118Z744> docker exec -it 479a27d2dfd3c4ac05e2c2a2ef9b42affb1a7da39f27bbc6c2c64af51073192c bash
+
+root@479a27d2dfd3:/# ls
+bin        episodeIV_dialouges.txt  hivescript1.sql  media         pigFile.pig  sbin  usr
+boot       episodeVI_dialouges.txt  home             metastore_db  proc         srv   var
+derby.log  episodeV_dialouges.txt   lib              mnt           root         sys
+dev        etc                      lib64            opt           run          tmp
+
+root@479a27d2dfd3:/# vim hivescript1.sql
+
+root@479a27d2dfd3:/# cat hivescript1.sql
+-- DROP table for re-usability
+DROP TABLE starwars;
+
+-- CREATE THE TABLE
+CREATE TABLE starwars (name STRING, line STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+TBLPROPERTIES("skip.header.line.count"="2");
+
+-- LOAD THE INPUTS INTO THE TABLE
+LOAD DATA LOCAL INPATH 'episodeIV_dialouges.txt' INTO TABLE starwars;
+LOAD DATA LOCAL INPATH 'episodeV_dialouges.txt' INTO TABLE starwars;
+LOAD DATA LOCAL INPATH 'episodeVI_dialouges.txt' INTO TABLE starwars;
+
+-- RUN THE SELECT QUERY AND STORE RESULT IN IDFS
+INSERT OVERWRITE DIRECTORY '/user/root/Output1'
+SELECT name, COUNT(name) AS noOfLines FROM starwars GROUP BY name ORDER BY noOfLines;
+
+
+root@479a27d2dfd3:/# hive -f hivescript1.sql
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/local/apache-hive-3.1.2-bin/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/local/hadoop-3.3.1/share/hadoop/common/lib/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Hive Session ID = a0cec486-dd85-4d0f-928b-9aa94c603169
+
+Logging initialized using configuration in jar:file:/usr/local/apache-hive-3.1.2-bin/lib/hive-common-3.1.2.jar!/hive-log4j2.properties Async: true
+Hive Session ID = fa5b21e5-f4dd-4c7f-aed5-8a9990746b36
+OK
+Time taken: 1.959 seconds
+OK
+Time taken: 0.58 seconds
+Loading data to table default.starwars
+OK
+Time taken: 1.172 seconds
+Loading data to table default.starwars
+OK
+Time taken: 0.151 seconds
+Loading data to table default.starwars
+OK
+Time taken: 0.587 seconds
+Query ID = root_20221229112837_7b121f13-9d98-4f27-8abb-50ac9e35e284
+Total jobs = 2
+Launching Job 1 out of 2
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1672313136359_0001, Tracking URL = http://479a27d2dfd3:8088/proxy/application_1672313136359_0001/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1672313136359_0001
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2022-12-29 11:28:51,280 Stage-1 map = 0%,  reduce = 0%
+2022-12-29 11:28:57,561 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 3.48 sec
+2022-12-29 11:29:02,748 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 6.19 sec
+MapReduce Total cumulative CPU time: 6 seconds 190 msec
+Ended Job = job_1672313136359_0001
+Launching Job 2 out of 2
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1672313136359_0002, Tracking URL = http://479a27d2dfd3:8088/proxy/application_1672313136359_0002/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1672313136359_0002
+Hadoop job information for Stage-2: number of mappers: 1; number of reducers: 1
+2022-12-29 11:29:16,808 Stage-2 map = 0%,  reduce = 0%
+2022-12-29 11:29:21,993 Stage-2 map = 100%,  reduce = 0%, Cumulative CPU 2.2 sec
+2022-12-29 11:29:28,177 Stage-2 map = 100%,  reduce = 100%, Cumulative CPU 5.05 sec
+MapReduce Total cumulative CPU time: 5 seconds 50 msec
+Ended Job = job_1672313136359_0002
+Moving data to directory /user/root/Output1
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 6.19 sec   HDFS Read: 173503 HDFS Write: 7319 SUCCESS
+Stage-Stage-2: Map: 1  Reduce: 1   Cumulative CPU: 5.05 sec   HDFS Read: 14380 HDFS Write: 3710 SUCCESS
+Total MapReduce CPU Time Spent: 11 seconds 240 msec
+OK
+Time taken: 51.413 seconds
+
+root@479a27d2dfd3:/# hdfs dfs -ls
+Found 6 items
+drwxr-xr-x   - root supergroup          0 2022-12-29 11:29 Output1
+-rw-r--r--   1 root supergroup      67671 2022-12-29 10:44 episodeIV_dialouges.txt
+-rw-r--r--   1 root supergroup      43658 2022-12-29 10:45 episodeVI_dialouges.txt
+-rw-r--r--   1 root supergroup      49891 2022-12-29 10:45 episodeV_dialouges.txt
+drwxr-xr-x   - root supergroup          0 2022-12-29 10:47 input
+drwxr-xr-x   - root supergroup          0 2022-12-29 11:02 result5
+
+root@479a27d2dfd3:/# hdfs dfs -ls Output1
+Found 1 items
+-rw-r--r--   1 root supergroup       3710 2022-12-29 11:29 Output1/000000_0
+
+root@479a27d2dfd3:/# hdfs dfs -cat Output1/000000_0
+HAN (whispering to himself)☺1
+HAN (turning to Luke)☺1
+HAN (to Luke)☺1
+HAN (to Leia)☺1
+HAN (smiles)☺1
+HAN (sighs)☺1
+HAN (sarcastic)☺1
+HAN (over comlink)☺1
+HAN (loses his temper)☺1
+HAN (looks at him warmly)☺1
+HAN (grins)☺1
+HAN (gravely)☺1
+HAN (angry)☺1
+HAN (chuckles)☺1
+HAN (blinking)☺1
+VOICE (OS)☺1
+DEATH STAR CONTROLLER(filtered VO)☺1
+ANAKIN☺1
+VADER (turning to face him)☺1
+VADER (skeptical)☺1
+VADER (indicating lightsaber)☺1
+VADER (bows)☺1
+VADER (after a beat)☺1
+VADER (a whisper)☺1
+ANAKIN (very weak)☺1
+TROOPER VOICE☺1
+Y-WING PILOT☺1
+CHIEF PILOT☺1
+DEAK☺1
+THREEPIO (to Wicket)☺1
+THREEPIO (to Artoo)☺1
+THREEPIO (still shaken)☺1
+THREEPIO (instantly)☺1
+THREEPIO (disappearing)☺1
+THREEPIO (cont)☺1
+ASSISTANT OFFICER☺1
+TECHNICIAN☺1
+ASTRO-OFFICER☺1
+EMPEROR (angry)☺1
+CONTROL ROOM COMMANDER☺1
+STORMTROOPER (OS)☺1
+EMPEROR (cont)☺1
+CONTROL OFFICER☺1
+WOMAN CONTROLLER☺1
+EMPEROR (laughing)☺1
+SECOND THREEPIO☺1
+WOMAN☺1
+SECOND CONTROLLER☺1
+SECOND COMMANDER☺1
+SCOUT #l☺1
+SCOUT #2☺1
+WINGMAN'S VOICE☺1
+SCOUT☺1
+EMPEROR (laughs)☺1
+RED TWO☺1
+RED THREE☺1
+RED TEN'S VOICE☺1
+BASE VOICE☺1
+RED SEVEN☺1
+RED NINE'S VOICE☺1
+RED NINE☺1
+RED LEADER'S VOICE☺1
+RED LEADER (VO)☺1
+BEN (OS)☺1
+RED ELEVEN☺1
+EMPEROR (no surprise)☺1
+REBEL OFFICER☺1
+REBEL FIGHTER☺1
+REBEL CAPTAIN☺1
+PORKINS☺1
+PILOTS☺1
+PILOT VOICE (HAN)(filtered)☺1
+PILOT #2☺1
+WINGMAN☺1
+PIETT (surprised)☺1
+PIETT (into comlink)☺1
+BEN (attempting to give solace with his words)☺1
+EMPEROR (to Luke)☺1
+BEN (continuing his narrative)☺1
+OPERATOR☺1
+OOLA☺1
+OFFICER CASS☺1
+BEN (grinning at Luke's indignation)☺1
+NINEDENINE (to a Gamorrean guard)☺1
+EMPEROR (to Vader)☺1
+EMPEROR (very cool)☺1
+NAVIGATOR☺1
+FIRST CONTROLLER☺1
+MON MOTHMA (cont)☺1
+CONTROLLER (filtered)☺1
+WEDGE (VO)☺1
+FIRST OFFICER☺1
+ACKBAR (cont)☺1
+LURE☺1
+LUKE'S VOICE☺1
+LUKE (with sadness)☺1
+LUKE (turning away, derisive)☺1
+LUKE (to Leia)☺1
+LUKE (shrugging it off)☺1
+LUKE (sarcastic)☺1
+LUKE (pointing to the controls)☺1
+LUKE (moving to his ship)☺1
+LUKE (indicating the one ahead)☺1
+LUKE (hesitant)☺1
+LUKE (groans)☺1
+LUKE (cont)☺1
+LUKE (concerned)☺1
+BERU☺1
+WALKER PILOT #1☺1
+LEIA (to Han)☺1
+LEIA (softly)☺1
+LEIA (over comlink)☺1
+LEIA (into comlink)☺1
+LEIA (alarmed)☺1
+YODA (gathering all his strength)☺1
+LANDO (to himself)☺1
+LANDO (smiling)☺1
+LANDO (over comlink)☺1
+LANDO (into comlink)☺1
+LANDO (desperately)☺1
+BIB (in Huttese subtitled)☺1
+JERJERROD (aghast)☺1
+YODA (tickled, chuckles)☺1
+GRAY LEADER☺1
+YODA (shakes his head)☺1
+JABBA (cont Huttese subtitled)☺1
+GREEN LEADER☺1
+VOICE OVER DEATH STAR INTERCOM☺1
+IMPERIAL SOLDIER☺1
+BUNKER COMMANDER☺1
+HAN (OS)☺1
+HOBBIE☺1
+HEAD CONTROLLER☺1
+HAN/PILOT (VO)☺1
+HAN'S VOICE☺1
+HAN and LUKE☺1
+HAN (with self-confident grin)☺1
+COMMUNICATIONS OFFICER☺2
+CONTROLLER (over radio)☺2
+WILLARD☺2
+TRACKING OFFICER☺2
+STRANGE VOICE☺2
+SHUTTLE CAPTAIN☺2
+SENIOR CONTROLLER☺2
+SECOND OFFICER☺2
+SCOUT #1☺2
+PILOT☺2
+MON MOTHMA☺2
+MEDICAL DROID☺2
+MAN'S VOICE☺2
+LIEUTENANT☺2
+BOUSHH (in Ubese subtitled)☺2
+GUARD☺2
+GOLD TWO☺2
+CAMIE☺2
+CAPTAIN☺2
+GENERAL MADINE☺2
+GANTRY OFFICER☺2
+FIXER☺2
+CHIEF☺2
+ACKBAR (VO)☺2
+DERLIN☺3
+TRENCH OFFICER☺3
+ANNOUNCER☺3
+VOICE☺3
+MASSASSI INTERCOM VOICE☺3
+REBEL PILOT☺3
+BARTENDER☺3
+SECOND TROOPER☺3
+HAN (cont)☺3
+IMPERIAL OFFICER☺4
+TAGGE☺4
+BOBA FETT☺4
+JANSON☺4
+MOTTI☺4
+DACK☺4
+HUMAN☺4
+OZZEL☺5
+CONTROLLER☺5
+STORMTROOPER☺5
+BIB☺5
+BOUSHH☺5
+NEEDA☺5
+NINEDENINE☺5
+ZEV☺6
+JERJERROD☺6
+GREEDO☺6
+FIRST TROOPER☺6
+DODONNA☺6
+DEATH STAR INTERCOM VOICE☺6
+AUNT BERU☺6
+DECK OFFICER☺7
+VEERS☺7
+GOLD FIVE☺7
+RED TEN☺7
+INTERCOM VOICE☺8
+BEN'S VOICE☺10
+JABBA☺10
+COMMANDER☺10
+ACKBAR☺11
+RIEEKAN☺13
+OFFICER☺13
+GOLD LEADER☺14
+JABBA (in Huttese subtitled)☺15
+TROOPER☺19
+CREATURE☺22
+OWEN☺25
+TARKIN☺28
+PIETT☺29
+WEDGE☺32
+BIGGS☺34
+RED LEADER☺36
+EMPEROR☺36
+YODA☺46
+LANDO☺96
+BEN☺101
+VADER☺134
+LEIA☺222
+THREEPIO☺295
+HAN☺438
+LUKE☺481
+root@479a27d2dfd3:/#
