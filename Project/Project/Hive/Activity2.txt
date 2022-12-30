@@ -1,0 +1,97 @@
+root@479a27d2dfd3:/# vim hivescript2.sql
+
+root@479a27d2dfd3:/# cat hivescript2.sql
+-- CREATE TABLE WITH EPISODEIV SCRIPT
+CREATE TABLE episodeIV (name STRING, line STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+TBLPROPERTIES("skip.header.line.count"="2");
+
+-- LOAD EPISODEIV SCRIPT TO THE TABLE
+LOAD DATA LOCAL INPATH 'episodeIV_dialouges.txt' INTO TABLE episodeIV2;
+
+-- COUNT LUKE IN EACH INE
+INSER OVERWRITE DIRECTORY '/user/root/Output2/'
+SELECT COUNT(*) FROM episodeIV2 WHERE INSTR(line, 'Luke') >= 1;
+
+root@479a27d2dfd3:/# hive -f hivescript2.sql
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/local/apache-hive-3.1.2-bin/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/local/hadoop-3.3.1/share/hadoop/common/lib/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Hive Session ID = 4a1c0a60-df23-4431-a3c2-4701a73e31e7
+
+Logging initialized using configuration in jar:file:/usr/local/apache-hive-3.1.2-bin/lib/hive-common-3.1.2.jar!/hive-log4j2.properties Async: true
+Hive Session ID = 5cbe9da3-ed29-498c-ace2-819703bc25c5
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. AlreadyExistsException(message:Table hive.default.episodeIV already exists)
+root@479a27d2dfd3:/# vim hivescript2.sql
+root@479a27d2dfd3:/# cat hivescript2.sql
+-- CREATE TABLE WITH EPISODEIV SCRIPT
+CREATE TABLE episodeIV2 (name STRING, line STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+TBLPROPERTIES("skip.header.line.count"="2");
+
+-- LOAD EPISODEIV SCRIPT TO THE TABLE
+LOAD DATA LOCAL INPATH 'episodeIV_dialouges.txt' INTO TABLE episodeIV2;
+
+-- COUNT LUKE IN EACH INE
+INSERT OVERWRITE DIRECTORY '/user/root/Output2/'
+SELECT COUNT(*) FROM episodeIV2 WHERE INSTR(line, 'Luke') >= 1;
+
+root@479a27d2dfd3:/# hive -f hivescript2.sql
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/local/apache-hive-3.1.2-bin/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/local/hadoop-3.3.1/share/hadoop/common/lib/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Hive Session ID = 668828da-063d-40d6-a1d8-63a4427657ed
+
+Logging initialized using configuration in jar:file:/usr/local/apache-hive-3.1.2-bin/lib/hive-common-3.1.2.jar!/hive-log4j2.properties Async: true
+Hive Session ID = d705ead4-96a7-4d2c-933e-9997eb67b4c7
+OK
+Time taken: 2.126 seconds
+Loading data to table default.episodeiv2
+OK
+Time taken: 0.916 seconds
+Query ID = root_20221229114251_c4564794-a0d6-4d92-8d0e-63dbfb35b6fd
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1672313136359_0003, Tracking URL = http://479a27d2dfd3:8088/proxy/application_1672313136359_0003/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1672313136359_0003
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2022-12-29 11:43:03,138 Stage-1 map = 0%,  reduce = 0%
+2022-12-29 11:43:09,447 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 4.66 sec
+2022-12-29 11:43:15,710 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 9.29 sec
+MapReduce Total cumulative CPU time: 9 seconds 290 msec
+Ended Job = job_1672313136359_0003
+Moving data to directory /user/root/Output2
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 9.29 sec   HDFS Read: 81512 HDFS Write: 3 SUCCESS
+Total MapReduce CPU Time Spent: 9 seconds 290 msec
+OK
+Time taken: 25.343 seconds
+
+root@479a27d2dfd3:/# hdfs dfs -ls
+Found 7 items
+drwxr-xr-x   - root supergroup          0 2022-12-29 11:29 Output1
+drwxr-xr-x   - root supergroup          0 2022-12-29 11:43 Output2
+-rw-r--r--   1 root supergroup      67671 2022-12-29 10:44 episodeIV_dialouges.txt
+-rw-r--r--   1 root supergroup      43658 2022-12-29 10:45 episodeVI_dialouges.txt
+-rw-r--r--   1 root supergroup      49891 2022-12-29 10:45 episodeV_dialouges.txt
+drwxr-xr-x   - root supergroup          0 2022-12-29 10:47 input
+drwxr-xr-x   - root supergroup          0 2022-12-29 11:02 result5
+
+root@479a27d2dfd3:/# hdfs dfs -ls Output2
+Found 1 items
+-rw-r--r--   1 root supergroup          3 2022-12-29 11:43 Output2/000000_0
+
+^[[Aroot@479a27d2dfd3:/# hdfs dfs -cat Output2/000000_0
+56
+root@479a27d2dfd3:/#

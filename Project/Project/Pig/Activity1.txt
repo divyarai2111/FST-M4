@@ -1,0 +1,360 @@
+PS C:\Users\00118Z744> docker container run -it -p 9870:9870 -p 8088:8088 registry.gitlab.com/training-support/training-environments:hadoop-v1 bash
+/
+ * Starting OpenBSD Secure Shell server sshd                                                         [ OK ]
+Waiting for hdfs to exit from safemode
+Safe mode is OFF
+Started
+
+root@479a27d2dfd3:/# ls
+bin   derby.log  etc   lib    media         mnt  proc  run   srv  tmp  var
+boot  dev        home  lib64  metastore_db  opt  root  sbin  sys  usr
+
+root@479a27d2dfd3:/# vim episodeIV_dialouges.txt
+root@479a27d2dfd3:/# vim episodeV_dialouges.txt
+root@479a27d2dfd3:/# vim episodeVI_dialouges.txt
+
+root@479a27d2dfd3:/# hdfs dfs -ls /user/root/
+Found 4 items
+-rw-r--r--   1 root supergroup      67671 2022-12-29 10:44 /user/root/episodeIV_dialouges.txt
+-rw-r--r--   1 root supergroup      43658 2022-12-29 10:45 /user/root/episodeVI_dialouges.txt
+-rw-r--r--   1 root supergroup      49891 2022-12-29 10:45 /user/root/episodeV_dialouges.txt
+drwxr-xr-x   - root supergroup          0 2022-12-29 10:47 /user/root/input
+
+root@479a27d2dfd3:/# vim pigFile.pig
+
+root@479a27d2dfd3:/# cat pigFile.pig
+
+-- Load input file from HDFS
+inputFile = LOAD 'hdfs:///user/root/episode*.txt' USING PigStorage('\t') as (name:chararray, line:chararray);
+-- Filter out the first two lines from the input file
+-- ranked = RANK inputFile;
+-- rankedInput = FILTER ranked BY (rank_inputFile > 2);
+-- Combine the words from the above stage
+grpd = GROUP inputFile BY name;
+-- Count the occurence of each word (Reduce)
+lineCount = FOREACH grpd GENERATE $0 as name, COUNT($1) as noOfLines;
+-- Store the result in HDFS
+STORE lineCount INTO 'hdfs:///user/root/result5';
+
+
+root@479a27d2dfd3:/# pig pigFile.pig
+2022-12-29 11:01:49,618 INFO pig.ExecTypeProvider: Trying ExecType : LOCAL
+2022-12-29 11:01:49,620 INFO pig.ExecTypeProvider: Trying ExecType : MAPREDUCE
+2022-12-29 11:01:49,620 INFO pig.ExecTypeProvider: Picked MAPREDUCE as the ExecType
+2022-12-29 11:01:49,657 [main] INFO  org.apache.pig.Main - Apache Pig version 0.17.0 (r1797386) compiled Jun 02 2017, 15:41:58
+2022-12-29 11:01:49,657 [main] INFO  org.apache.pig.Main - Logging error messages to: //pig_1672311709652.log
+2022-12-29 11:01:49,868 [main] INFO  org.apache.pig.impl.util.Utils - Default bootup file /root/.pigbootup not found
+2022-12-29 11:01:49,903 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+2022-12-29 11:01:49,903 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://479a27d2dfd3:9000
+2022-12-29 11:01:50,253 [main] INFO  org.apache.pig.PigServer - Pig Script ID for the session: PIG-pigFile.pig-6b559add-2406-447f-b211-32e35b03db95
+2022-12-29 11:01:50,253 [main] WARN  org.apache.pig.PigServer - ATS is disabled since yarn.timeline-service.enabled set to false
+2022-12-29 11:01:50,838 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.textoutputformat.separator is deprecated. Instead, use mapreduce.output.textoutputformat.separator
+2022-12-29 11:01:50,853 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig features used in the script: GROUP_BY
+2022-12-29 11:01:50,881 [main] INFO  org.apache.pig.data.SchemaTupleBackend - Key [pig.schematuple] was notset... will not generate code.
+2022-12-29 11:01:50,908 [main] INFO  org.apache.pig.newplan.logical.optimizer.LogicalPlanOptimizer - {RULES_ENABLED=[AddForEach, ColumnMapKeyPrune, ConstantCalculator, GroupByConstParallelSetter, LimitOptimizer, LoadTypeCastInserter, MergeFilter, MergeForEach, NestedLimitOptimizer, PartitionFilterOptimizer, PredicatePushdownOptimizer, PushDownForEachFlatten, PushUpFilter, SplitFilter, StreamTypeCastInserter]}
+2022-12-29 11:01:50,966 [main] INFO  org.apache.pig.impl.util.SpillableMemoryManager - Selected heap (PS Old Gen) of size 699400192 to monitor. collectionUsageThreshold = 489580128, usageThreshold = 489580128
+2022-12-29 11:01:51,033 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2022-12-29 11:01:51,045 [main] INFO  org.apache.pig.backend.hadoop.executionengine.util.CombinerOptimizerUtil - Choosing to move algebraic foreach to combiner
+2022-12-29 11:01:51,068 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2022-12-29 11:01:51,068 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2022-12-29 11:01:51,146 [main] INFO  org.apache.hadoop.yarn.client.DefaultNoHARMFailoverProxyProvider - Connecting to ResourceManager at /0.0.0.0:8032
+2022-12-29 11:01:51,287 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2022-12-29 11:01:51,302 [main] INFO  org.apache.pig.tools.pigstats.mapreduce.MRScriptState - Pig script settings are added to the job
+2022-12-29 11:01:51,308 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.job.reduce.markreset.buffer.percent is deprecated. Instead, use mapreduce.reduce.markreset.buffer.percent
+2022-12-29 11:01:51,308 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2022-12-29 11:01:51,310 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.output.compress is deprecated. Instead, use mapreduce.output.fileoutputformat.compress
+2022-12-29 11:01:51,313 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Reduce phase detected, estimating # of required reducers.
+2022-12-29 11:01:51,314 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2022-12-29 11:01:51,324 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=161220
+2022-12-29 11:01:51,324 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2022-12-29 11:01:51,324 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.reduce.tasksis deprecated. Instead, use mapreduce.job.reduces
+2022-12-29 11:01:51,324 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - This job cannot be converted run in-process
+2022-12-29 11:01:51,334 [main] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.submit.replication is deprecated. Instead, use mapreduce.client.submit.file.replication
+2022-12-29 11:01:51,512 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Added jar file:/usr/local/pig-0.17.0/pig-0.17.0-core-h2.jar to DistributedCache through /tmp/temp-624668767/tmp-260443086/pig-0.17.0-core-h2.jar
+2022-12-29 11:01:51,536 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Added jar file:/usr/local/pig-0.17.0/lib/automaton-1.11-8.jar to DistributedCache through /tmp/temp-624668767/tmp1937665609/automaton-1.11-8.jar
+2022-12-29 11:01:51,559 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Added jar file:/usr/local/pig-0.17.0/lib/antlr-runtime-3.4.jar to DistributedCache through /tmp/temp-624668767/tmp-746599613/antlr-runtime-3.4.jar
+2022-12-29 11:01:51,581 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Added jar file:/usr/local/pig-0.17.0/lib/joda-time-2.9.3.jar to DistributedCache through /tmp/temp-624668767/tmp1987460676/joda-time-2.9.3.jar
+2022-12-29 11:01:51,588 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting up single store job
+2022-12-29 11:01:51,591 [main] INFO  org.apache.pig.data.SchemaTupleFrontend - Key [pig.schematuple] is false, will not generate code.
+2022-12-29 11:01:51,591 [main] INFO  org.apache.pig.data.SchemaTupleFrontend - Starting process to move generated code to distributed cacche
+2022-12-29 11:01:51,591 [main] INFO  org.apache.pig.data.SchemaTupleFrontend - Setting key [pig.schematuple.classes] with classes to deserialize []
+2022-12-29 11:01:51,659 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 1 map-reduce job(s) waiting for submission.
+2022-12-29 11:01:51,665 [JobControl] INFO  org.apache.hadoop.yarn.client.DefaultNoHARMFailoverProxyProvider- Connecting to ResourceManager at /0.0.0.0:8032
+2022-12-29 11:01:51,679 [JobControl] INFO  org.apache.hadoop.conf.Configuration.deprecation - mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+2022-12-29 11:01:51,773 [JobControl] INFO  org.apache.hadoop.mapreduce.JobResourceUploader - Disabling Erasure Coding for path: /tmp/hadoop-yarn/staging/root/.staging/job_1672310388830_0005
+2022-12-29 11:01:51,786 [JobControl] WARN  org.apache.hadoop.mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2022-12-29 11:01:51,814 [JobControl] INFO  org.apache.pig.builtin.PigStorage - Using PigTextInputFormat
+2022-12-29 11:01:51,824 [JobControl] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input files to process : 3
+2022-12-29 11:01:51,824 [JobControl] INFO  org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil - Total input paths to process : 3
+2022-12-29 11:01:51,857 [JobControl] INFO  org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil - Total input paths (combined) to process : 1
+2022-12-29 11:01:51,911 [JobControl] INFO  org.apache.hadoop.mapreduce.JobSubmitter - number of splits:1
+2022-12-29 11:01:52,002 [JobControl] INFO  org.apache.hadoop.conf.Configuration.deprecation - yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+2022-12-29 11:01:52,102 [JobControl] INFO  org.apache.hadoop.mapreduce.JobSubmitter - Submitting tokens forjob: job_1672310388830_0005
+2022-12-29 11:01:52,102 [JobControl] INFO  org.apache.hadoop.mapreduce.JobSubmitter - Executing with tokens: []
+2022-12-29 11:01:52,242 [JobControl] INFO  org.apache.hadoop.mapred.YARNRunner - Job jar is not present. Not adding any jar to the list of resources.
+2022-12-29 11:01:52,296 [JobControl] INFO  org.apache.hadoop.conf.Configuration - resource-types.xml not found
+2022-12-29 11:01:52,296 [JobControl] INFO  org.apache.hadoop.yarn.util.resource.ResourceUtils - Unable to find 'resource-types.xml'.
+2022-12-29 11:01:52,349 [JobControl] INFO  org.apache.hadoop.yarn.client.api.impl.YarnClientImpl - Submitted application application_1672310388830_0005
+2022-12-29 11:01:52,378 [JobControl] INFO  org.apache.hadoop.mapreduce.Job - The url to track the job: http://479a27d2dfd3:8088/proxy/application_1672310388830_0005/
+2022-12-29 11:01:52,378 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - HadoopJobId: job_1672310388830_0005
+2022-12-29 11:01:52,378 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Processing aliases grpd,inputFile,lineCount
+2022-12-29 11:01:52,378 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - detailed locations: M: inputFile[2,12],inputFile[-1,-1],lineCount[9,12],grpd[7,7] C: lineCount[9,12],grpd[7,7] R: lineCount[9,12]
+2022-12-29 11:01:52,384 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 0% complete
+2022-12-29 11:01:52,384 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Running jobs are [job_1672310388830_0005]
+2022-12-29 11:02:02,430 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 50% complete
+2022-12-29 11:02:02,430 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Running jobs are [job_1672310388830_0005]
+2022-12-29 11:02:09,443 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Running jobs are [job_1672310388830_0005]
+2022-12-29 11:02:12,451 [main] INFO  org.apache.hadoop.yarn.client.DefaultNoHARMFailoverProxyProvider - Connecting to ResourceManager at /0.0.0.0:8032
+2022-12-29 11:02:12,460 [main] INFO  org.apache.hadoop.mapred.ClientServiceDelegate - Application state is completed. FinalApplicationStatus=SUCCEEDED. Redirecting to job history server
+2022-12-29 11:02:13,543 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 0 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:14,544 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 1 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:15,545 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 2 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:16,546 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 3 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:17,546 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 4 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:18,548 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 5 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:19,548 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 6 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:20,549 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 7 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2022-12-29 11:02:21,550 [main] INFO  org.apache.hadoop.ipc.Client - Retrying connect to server: 0.0.0.0/0.0.0.0:10020. Already tried 8 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+^C
+
+root@479a27d2dfd3:/# hdfs dfs -ls /user/root/
+Found 5 items
+-rw-r--r--   1 root supergroup      67671 2022-12-29 10:44 /user/root/episodeIV_dialouges.txt
+-rw-r--r--   1 root supergroup      43658 2022-12-29 10:45 /user/root/episodeVI_dialouges.txt
+-rw-r--r--   1 root supergroup      49891 2022-12-29 10:45 /user/root/episodeV_dialouges.txt
+drwxr-xr-x   - root supergroup          0 2022-12-29 10:47 /user/root/input
+drwxr-xr-x   - root supergroup          0 2022-12-29 11:02 /user/root/result5
+
+
+root@479a27d2dfd3:/# hdfs dfs -ls /user/root/result5
+Found 2 items
+-rw-r--r--   1 root supergroup          0 2022-12-29 11:02 /user/root/result5/_SUCCESS
+-rw-r--r--   1 root supergroup       3841 2022-12-29 11:02 /user/root/result5/part-r-00000
+
+
+root@479a27d2dfd3:/# hdfs dfs -cat /user/root/result5/part-r-00000
+BEN     101
+BIB     5
+HAN     438
+ZEV     6
+BERU    1
+DACK    4
+DEAK    1
+LEIA    222
+LUKE    481
+LURE    1
+OOLA    1
+OWEN    25
+YODA    46
+BIGGS   34
+CAMIE   2
+CHIEF   2
+FIXER   2
+GUARD   2
+HUMAN   4
+JABBA   10
+LANDO   96
+MOTTI   4
+NEEDA   5
+OZZEL   5
+PIETT   29
+PILOT   2
+SCOUT   1
+TAGGE   4
+VADER   134
+VEERS   7
+VOICE   3
+WEDGE   32
+WOMAN   1
+ACKBAR  11
+ANAKIN  1
+BOUSHH  5
+DERLIN  3
+GREEDO  6
+HOBBIE  1
+JANSON  4
+PILOTS  1
+TARKIN  28
+CAPTAIN 2
+DODONNA 6
+EMPEROR 36
+OFFICER 13
+PORKINS 1
+RED TEN 7
+RED TWO 1
+RIEEKAN 13
+TROOPER 19
+WILLARD 2
+WINGMAN 1
+BEN (OS)        1
+CREATURE        22
+GOLD TWO        2
+HAN (OS)        1
+OPERATOR        1
+PILOT #2        1
+RED NINE        1
+SCOUT #1        2
+SCOUT #2        1
+SCOUT #l        1
+THREEPIO        295
+ANNOUNCER       3
+AUNT BERU       6
+BARTENDER       3
+BOBA FETT       4
+COMMANDER       10
+GOLD FIVE       7
+JERJERROD       6
+NAVIGATOR       1
+RED SEVEN       1
+RED THREE       1
+BASE VOICE      1
+CONTROLLER      5
+HAN (cont)      3
+LIEUTENANT      2
+MON MOTHMA      2
+NINEDENINE      5
+RED ELEVEN      1
+RED LEADER      36
+TECHNICIAN      1
+VOICE (OS)      1
+WEDGE (VO)      1
+ACKBAR (VO)     2
+BEN'S VOICE     10
+CHIEF PILOT     1
+GOLD LEADER     14
+GRAY LEADER     1
+HAN (angry)     1
+HAN (grins)     1
+HAN (sighs)     1
+HAN'S VOICE     1
+LUKE (cont)     1
+MAN'S VOICE     2
+REBEL PILOT     3
+DECK OFFICER    7
+GREEN LEADER    1
+HAN (smiles)    1
+HAN and LUKE    1
+LUKE'S VOICE    1
+OFFICER CASS    1
+STORMTROOPER    5
+VADER (bows)    1
+Y-WING PILOT    1
+ACKBAR (cont)   1
+ASTRO-OFFICER   1
+FIRST OFFICER   1
+FIRST TROOPER   6
+HAN (gravely)   1
+HAN (to Leia)   1
+HAN (to Luke)   1
+LEIA (softly)   1
+LEIA (to Han)   1
+LUKE (groans)   1
+MEDICAL DROID   2
+REBEL CAPTAIN   1
+REBEL FIGHTER   1
+REBEL OFFICER   1
+STRANGE VOICE   2
+TROOPER VOICE   1
+EMPEROR (cont)  1
+GANTRY OFFICER  2
+GENERAL MADINE  2
+HAN (blinking)  1
+HAN (chuckles)  1
+HAN/PILOT (VO)  1
+INTERCOM VOICE  8
+LEIA (alarmed)  1
+LUKE (to Leia)  1
+SECOND OFFICER  2
+SECOND TROOPER  3
+TRENCH OFFICER  3
+CONTROL OFFICER 1
+EMPEROR (angry) 1
+HAN (sarcastic) 1
+HEAD CONTROLLER 1
+LANDO (smiling) 1
+LUKE (hesitant) 1
+RED LEADER (VO) 1
+RED TEN'S VOICE 1
+SECOND THREEPIO 1
+SHUTTLE CAPTAIN 2
+THREEPIO (cont) 1
+WALKER PILOT #1 1
+WINGMAN'S VOICE 1
+BUNKER COMMANDER        1
+EMPEROR (laughs)        1
+FIRST CONTROLLER        1
+IMPERIAL OFFICER        4
+IMPERIAL SOLDIER        1
+LUKE (concerned)        1
+LUKE (sarcastic)        1
+RED NINE'S VOICE        1
+SECOND COMMANDER        1
+TRACKING OFFICER        2
+WOMAN CONTROLLER        1
+ASSISTANT OFFICER       1
+EMPEROR (to Luke)       1
+MON MOTHMA (cont)       1
+PIETT (surprised)       1
+SECOND CONTROLLER       1
+SENIOR CONTROLLER       2
+STORMTROOPER (OS)       1
+VADER (a whisper)       1
+VADER (skeptical)       1
+ANAKIN (very weak)      1
+EMPEROR (laughing)      1
+EMPEROR (to Vader)      1
+HAN (over comlink)      1
+JERJERROD (aghast)      1
+LANDO (to himself)      1
+RED LEADER'S VOICE      1
+EMPEROR (very cool)     1
+LANDO (desperately)     1
+LEIA (into comlink)     1
+LEIA (over comlink)     1
+LUKE (with sadness)     1
+THREEPIO (to Artoo)     1
+LANDO (into comlink)    1
+LANDO (over comlink)    1
+PIETT (into comlink)    1
+THREEPIO (instantly)    1
+THREEPIO (to Wicket)    1
+VADER (after a beat)    1
+CONTROLLER (filtered)   1
+EMPEROR (no surprise)   1
+HAN (turning to Luke)   1
+COMMUNICATIONS OFFICER  2
+CONTROL ROOM COMMANDER  1
+HAN (loses his temper)  1
+YODA (shakes his head)  1
+CONTROLLER (over radio) 2
+LUKE (shrugging it off) 1
+MASSASSI INTERCOM VOICE 3
+THREEPIO (disappearing) 1
+THREEPIO (still shaken) 1
+YODA (tickled, chuckles)        1
+DEATH STAR INTERCOM VOICE       6
+HAN (looks at him warmly)       1
+LUKE (moving to his ship)       1
+BIB (in Huttese subtitled)      1
+BOUSHH (in Ubese subtitled)     2
+HAN (whispering to himself)     1
+PILOT VOICE (HAN)(filtered)     1
+VADER (turning to face him)     1
+JABBA (in Huttese subtitled)    15
+LUKE (turning away, derisive)   1
+VADER (indicating lightsaber)   1
+BEN (continuing his narrative)  1
+HAN (with self-confident grin)  1
+JABBA (cont Huttese subtitled)  1
+VOICE OVER DEATH STAR INTERCOM  1
+LUKE (indicating the one ahead) 1
+LUKE (pointing to the controls) 1
+STAR WARS - EPISODE 4: STAR WARS        1
+NINEDENINE (to a Gamorrean guard)       1
+YODA (gathering all his strength)       1
+DEATH STAR CONTROLLER(filtered VO)      1
+BEN (grinning at Luke's indignation)    1
+STAR WARS - EPISODE 6: RETURN OF THE JEDI       1
+BEN (attempting to give solace with his words)  1
+STAR WARS - EPISODE 5: THE EMPIRE STRIKES BACK  1
+        0
